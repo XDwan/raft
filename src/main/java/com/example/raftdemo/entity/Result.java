@@ -5,4 +5,9 @@ public class Result {
     public int term;
     //true means candidate received vote
     public boolean success;
+
+    public Result() {
+        term = 0;
+        success = false;
+    }
 }
