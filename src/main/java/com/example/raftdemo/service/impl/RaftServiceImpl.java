@@ -16,8 +16,16 @@ public class RaftServiceImpl implements RaftService {
     @Override
     public Result requestVote(int term, int candidateID, int lastLogIndex, int lastLogTerm) {
         Result result = new Result();
-
-
+        result.term = state.currentTerm;
+        // reply false if term < currentTerm
+        if (term < state.currentTerm) {
+            result.success = false;
+            return result;
+        }
+        // if voteFor == -1 || candidateId and log is up-to-date
+        if (state.voteFor == -1) {
+            result.success = true;
+        }
         return result;
     }
 
@@ -68,8 +76,13 @@ public class RaftServiceImpl implements RaftService {
             }
         }
         // append new entry in the log
-        if (!isExist){
+        if (!isExist) {
             state.logs.add(newEntry);
+        }
+        // if leaderCommit > commitIndex
+        // let commitIndex = min(leaderCommit, index of last new entry)
+        if (leaderCommit > state.commitIndex) {
+            state.commitIndex = Math.min(leaderCommit, newEntry.index);
         }
         return result;
     }

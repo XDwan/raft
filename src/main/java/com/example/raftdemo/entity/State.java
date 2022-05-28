@@ -3,8 +3,8 @@ package com.example.raftdemo.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-enum ServerState{
-    FOLLOWER,CANDIDATE,LEADER;
+enum ServerState {
+    FOLLOWER, CANDIDATE, LEADER;
 }
 
 public class State {
@@ -34,15 +34,19 @@ public class State {
         lastApplied = 0;
     }
 
-    public void changeToLeader(){
+    public void changeToLeader() {
         state = ServerState.LEADER;
     }
 
-    public void changeToCandidate(){
+    public void changeToCandidate() {
         state = ServerState.CANDIDATE;
     }
 
-    public void changeToFollower(){
+    public void changeToFollower() {
         state = ServerState.FOLLOWER;
+    }
+
+    public boolean checkUpToDate(int candidateID, int lastLogIndex, int lastLogTerm) {
+        if (candidateID > )
     }
 }

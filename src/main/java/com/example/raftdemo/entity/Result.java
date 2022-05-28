@@ -8,6 +8,6 @@ public class Result {
 
     public Result() {
         term = 0;
-        success = false;
+        success = true;
     }
 }
