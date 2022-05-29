@@ -16,6 +16,11 @@ public class RaftServiceImpl implements RaftService {
     @Override
     public Result requestVote(int term, int candidateID, int lastLogIndex, int lastLogTerm) {
         Result result = new Result();
+        // 当前节点不可用
+        if (!state.isAvailable) {
+            result.success = false;
+            return result;
+        }
         result.term = state.currentTerm;
         // reply false if term < currentTerm
         if (term < state.currentTerm) {
@@ -32,6 +37,11 @@ public class RaftServiceImpl implements RaftService {
     @Override
     public Result appendEntries(int term, int leaderID, int prevLogIndex, int prevLogTerm, Entry newEntry, int leaderCommit) {
         Result result = new Result();
+        // 当前节点不可用
+        if (!state.isAvailable) {
+            result.success = false;
+            return result;
+        }
         result.term = state.currentTerm;
         // reply false if term < current term
         if (term > state.currentTerm) {
@@ -82,7 +92,7 @@ public class RaftServiceImpl implements RaftService {
         // if leaderCommit > commitIndex
         // let commitIndex = min(leaderCommit, index of last new entry)
         if (leaderCommit > state.commitIndex) {
-            state.commitIndex = Math.min(leaderCommit, newEntry.index);
+            state.commitIndex = Math.min(leaderCommit, state.maxIndex());
         }
         return result;
     }
@@ -90,5 +100,18 @@ public class RaftServiceImpl implements RaftService {
     @Override
     public Result access() {
         return null;
+    }
+
+    @Override
+    public String stateChange(String operate) {
+        // 节点设置为可用
+        if (operate.equals("start")){
+            state.isAvailable = true;
+        }
+        // 节点设置为不可用
+        if (operate.equals("stop")){
+            state.isAvailable = false;
+        }
+        return new String("success");
     }
 }

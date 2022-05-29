@@ -12,4 +12,6 @@ public interface RaftService {
     public Result appendEntries(int term, int leaderID, int prevLogIndex, int prevLogTerm, Entry entry, int leaderCommit);
 
     public Result access();
+
+    public String stateChange(String operate);
 }
