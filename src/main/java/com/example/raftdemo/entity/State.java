@@ -59,6 +59,10 @@ public class State extends Thread {
         state = ServerState.FOLLOWER;
     }
 
+    public void broadcast(String msg){
+
+    }
+
     public boolean checkUpToDate(int candidateID, int lastLogIndex, int lastLogTerm) {
         return false;
     }
@@ -71,6 +75,10 @@ public class State extends Thread {
             }
         }
         return max;
+    }
+
+    public void resetTimer(){
+        timer = 10;
     }
 
     @Override

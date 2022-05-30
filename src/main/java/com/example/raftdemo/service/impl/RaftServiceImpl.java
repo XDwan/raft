@@ -21,12 +21,13 @@ public class RaftServiceImpl implements RaftService {
             result.success = false;
             return result;
         }
-        result.term = state.currentTerm;
         // reply false if term < currentTerm
         if (term < state.currentTerm) {
             result.success = false;
             return result;
         }
+        state.resetTimer();
+        result.term = state.currentTerm;
         // if voteFor == -1 || candidateId and log is up-to-date
         if (state.voteFor == -1) {
             result.success = true;
@@ -48,6 +49,7 @@ public class RaftServiceImpl implements RaftService {
             result.success = false;
             return result;
         }
+        state.resetTimer();
         // reply false if log doesn't contain an entry at preLogIndex whose term matches prevLogTerm
         Iterator<Entry> it = state.logs.iterator();
         boolean isIn = false;
@@ -104,14 +106,20 @@ public class RaftServiceImpl implements RaftService {
 
     @Override
     public String stateChange(String operate) {
+        Thread thread = null;
         // 节点设置为可用
         if (operate.equals("start")){
             state.isAvailable = true;
+            thread = new Thread(state);
+            thread.start();
         }
         // 节点设置为不可用
         if (operate.equals("stop")){
             state.isAvailable = false;
+            assert thread != null;
+            thread.interrupt();
         }
+        String[] args = operate.split(" ");
         return new String("success");
     }
 }
