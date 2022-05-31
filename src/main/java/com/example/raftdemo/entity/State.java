@@ -1,5 +1,7 @@
 package com.example.raftdemo.entity;
 
+import com.example.raftdemo.uttils.RequestUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -30,6 +32,8 @@ public class State extends Thread {
 
     // 网络设置
     public List<String> peers;
+    int lastLogIndex;
+    int lastLogTerm;
 
     // server init
     public State() {
@@ -50,12 +54,18 @@ public class State extends Thread {
     }
 
     public void changeToCandidate() {
+        // conversion to candidate
         state = ServerState.CANDIDATE;
         // Increment currentTerm
         currentTerm++;
         // vote for slef
         voteFor = id;
-        timer = random.nextInt(15);
+        // reset election timer
+        timer = 10;
+        // send RequestVote to other servers
+        for (String peer:peers){
+            RequestUtil.voteRequest(peer,currentTerm,id,lastLogIndex,lastLogTerm);
+        }
     }
 
     public void changeToFollower() {

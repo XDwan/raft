@@ -10,4 +10,12 @@ public class Result {
         term = 0;
         success = true;
     }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "term=" + term +
+                ", success=" + success +
+                '}';
+    }
 }

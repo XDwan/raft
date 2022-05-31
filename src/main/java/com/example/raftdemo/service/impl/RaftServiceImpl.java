@@ -26,11 +26,14 @@ public class RaftServiceImpl implements RaftService {
             result.success = false;
             return result;
         }
-        state.resetTimer();
+
         result.term = state.currentTerm;
         // if voteFor == -1 || candidateId and log is up-to-date
         if (state.voteFor == -1) {
             result.success = true;
+            // election timeout but vote to candidate
+            state.resetTimer();
+            state.voteFor = candidateID;
         }
         return result;
     }
