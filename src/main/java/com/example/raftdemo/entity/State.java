@@ -29,7 +29,7 @@ public class State extends Thread {
     public List<Integer> matchIndex;
 
     // 网络设置
-    String[] peers;
+    public List<String> peers;
 
     // server init
     public State() {
@@ -38,6 +38,9 @@ public class State extends Thread {
         currentTerm = 0;
         voteFor = -1; // none
         logs = new ArrayList<>();
+        nextIndex = new ArrayList<>();
+        matchIndex = new ArrayList<>();
+        peers = new ArrayList<>();
         commitIndex = 0;
         lastApplied = 0;
     }
@@ -59,7 +62,8 @@ public class State extends Thread {
         state = ServerState.FOLLOWER;
     }
 
-    public void broadcast(String msg){
+    public void sendHeartBeat() {
+        Entry beat = new Entry();
 
     }
 
@@ -77,26 +81,59 @@ public class State extends Thread {
         return max;
     }
 
-    public void resetTimer(){
+    public void resetTimer() {
         timer = 10;
     }
 
     @Override
     public void run() {
         while (true) {
-            timer--;
-            if (timer == 0 && state == ServerState.FOLLOWER) {
-                changeToCandidate();
+            if (state == ServerState.FOLLOWER) {
+                timer--;
+                if (timer == 0) {
+                    changeToCandidate();
+                }
+                // 状态转换完后
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    System.out.println("睡眠中止");
+                }
             }
-            if (timer == 0 && state == ServerState.CANDIDATE) {
-                changeToCandidate();
+            if (state == ServerState.CANDIDATE) {
+                timer--;
+                // 计数到期 则等待随机时间后 重置随机计数
+                if (timer == 0) {
+                    int sleepTime = random.nextInt(10);
+                    timer = 10;
+                    try {
+                        sleep(sleepTime * 1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                // 状态转换完后
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    System.out.println("睡眠中止");
+                }
+
             }
-            // 状态转换完后
-            try {
-                sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (state == ServerState.LEADER) {
+                timer--;
+                // waiting for n second and send a heartbeat
+                if (timer == 0) {
+                    changeToCandidate();
+                }
+                // 状态转换完后
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    System.out.println("睡眠中止");
+                }
             }
+
         }
     }
 }
