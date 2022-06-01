@@ -23,11 +23,15 @@ public class State extends Thread {
     public List<Entry> logs;
 
     // volatile state on all servers
+    // 最新提交的index
     public int commitIndex;
+    // 最新应用于状态机的index
     public int lastApplied;
 
     // volatile state on leaders
+    // 对于每个服务器要发送的下一条entry的索引
     public List<Integer> nextIndex;
+    // 对于每个服务器已知的最高的要复制的索引
     public List<Integer> matchIndex;
 
     // 网络设置
@@ -63,8 +67,17 @@ public class State extends Thread {
         // reset election timer
         timer = 10;
         // send RequestVote to other servers
-        for (String peer:peers){
-            RequestUtil.voteRequest(peer,currentTerm,id,lastLogIndex,lastLogTerm);
+        int count = 0;
+        for (String peer : peers) {
+            Result res = RequestUtil.voteRequest(peer, currentTerm, id, lastLogIndex, lastLogTerm);
+            if (res.success) {
+                count++;
+                // 若有超半数节点认可
+                if (count > peer.length() / 2 + 1){
+                    state = ServerState.LEADER;
+                    return;
+                }
+            }
         }
     }
 
@@ -74,7 +87,12 @@ public class State extends Thread {
 
     public void sendHeartBeat() {
         Entry beat = new Entry();
-
+        beat.index = commitIndex;
+        beat.term = currentTerm;
+        beat.content = "heartBeat";
+        for (String peer : peers){
+            Result res = RequestUtil.appendEntry(peer,currentTerm,id,);
+        }
     }
 
     public boolean checkUpToDate(int candidateID, int lastLogIndex, int lastLogTerm) {
@@ -134,7 +152,7 @@ public class State extends Thread {
                 timer--;
                 // waiting for n second and send a heartbeat
                 if (timer == 0) {
-                    changeToCandidate();
+                    sendHeartBeat();
                 }
                 // 状态转换完后
                 try {
