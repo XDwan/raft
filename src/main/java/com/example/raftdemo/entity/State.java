@@ -3,12 +3,9 @@ package com.example.raftdemo.entity;
 import com.example.raftdemo.uttils.RequestUtil;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
-
-enum ServerState {
-    FOLLOWER, CANDIDATE, LEADER;
-}
 
 public class State extends Thread {
     // current state
@@ -27,8 +24,8 @@ public class State extends Thread {
     public int lastApplied;
 
     // volatile state on leaders
-    public List<Integer> nextIndex;
-    public List<Integer> matchIndex;
+    public ArrayList<Integer> nextIndex;
+    public ArrayList<Integer> matchIndex;
 
     // 网络设置
     public List<String> peers;
@@ -63,8 +60,8 @@ public class State extends Thread {
         // reset election timer
         timer = 10;
         // send RequestVote to other servers
-        for (String peer:peers){
-            RequestUtil.voteRequest(peer,currentTerm,id,lastLogIndex,lastLogTerm);
+        for (String peer : peers) {
+            RequestUtil.voteRequest(peer, currentTerm, id, lastLogIndex, lastLogTerm);
         }
     }
 
@@ -77,7 +74,18 @@ public class State extends Thread {
 
     }
 
+    public Entry lastLogEntry() {
+        return logs.get(logs.size() - 1);
+    }
+
     public boolean checkUpToDate(int candidateID, int lastLogIndex, int lastLogTerm) {
+        if (voteFor == -1){
+            return true;
+        }
+        Entry entry = lastLogEntry();
+        if (lastLogTerm > entry.term){
+
+        }
         return false;
     }
 

@@ -13,6 +13,7 @@ public class RaftServiceImpl implements RaftService {
 
     public State state = new State();
     Thread thread = null;
+
     @Override
     public Result requestVote(int term, int candidateID, int lastLogIndex, int lastLogTerm) {
         Result result = new Result();
@@ -27,9 +28,8 @@ public class RaftServiceImpl implements RaftService {
             return result;
         }
 
-        result.term = state.currentTerm;
         // if voteFor == -1 || candidateId and log is up-to-date
-        if (state.voteFor == -1) {
+        if (state.checkUpToDate(candidateID, lastLogIndex, lastLogTerm)) {
             result.success = true;
             // election timeout but vote to candidate
             state.resetTimer();
@@ -125,25 +125,24 @@ public class RaftServiceImpl implements RaftService {
             System.out.println("节点关闭，timer关闭");
         }
 
-        if (args[0].equals("add")){
+        if (args[0].equals("add")) {
             state.peers.add(args[1]);
-            System.out.println("新增节点:"+args[1]);
+            System.out.println("新增节点:" + args[1]);
         }
 
-        if (args[0].equals("del")){
-            if (state.peers.contains(args[1])){
+        if (args[0].equals("del")) {
+            if (state.peers.contains(args[1])) {
                 state.peers.remove(args[1]);
-                System.out.println("节点"+args[1]+"已删除");
-            }
-            else{
-                System.out.println("节点"+args[1]+"不存在");
+                System.out.println("节点" + args[1] + "已删除");
+            } else {
+                System.out.println("节点" + args[1] + "不存在");
             }
         }
 
-        if (args[0].equals("show")){
+        if (args[0].equals("show")) {
             System.out.println("节点列表如下：");
-            for (String peer:state.peers){
-                System.out.println("- "+peer);
+            for (String peer : state.peers) {
+                System.out.println("- " + peer);
             }
         }
 
