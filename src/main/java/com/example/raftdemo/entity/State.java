@@ -6,9 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-enum ServerState {
-    FOLLOWER, CANDIDATE, LEADER;
-}
 
 public class State extends Thread {
     // current state
@@ -90,9 +87,9 @@ public class State extends Thread {
         beat.index = commitIndex;
         beat.term = currentTerm;
         beat.content = "heartBeat";
-        for (String peer : peers){
-            Result res = RequestUtil.appendEntry(peer,currentTerm,id,);
-        }
+//        for (String peer : peers){
+//            Result res = RequestUtil.appendEntry(peer,currentTerm,id,);
+//        }
     }
 
     public boolean checkUpToDate(int candidateID, int lastLogIndex, int lastLogTerm) {

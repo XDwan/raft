@@ -5,6 +5,6 @@ package com.example.raftdemo.entity;
  * @Date:2022/6/2
  * @Description:
  **/
-enum ServerState {
+public enum ServerState {
     FOLLOWER, CANDIDATE, LEADER;
 }
