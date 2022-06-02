@@ -1,6 +1,7 @@
 package com.example.raftdemo.uttils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.example.raftdemo.entity.Entry;
 import com.example.raftdemo.entity.Result;
 
 import java.io.*;
@@ -97,6 +98,17 @@ public class RequestUtil {
         return JSONObject.parseObject(res, Result.class);
     }
 
+    public static Result appendEntry(String ip, int term, int id, int prevLogIndex, int prevLogTerm,Entry entry, int commitID){
+        Map<String, Object> params = new HashMap<>();
+        params.put("term", term);
+        params.put("leaderID", id);
+        params.put("prevLogIndex",prevLogIndex);
+        params.put("prevLogTerm",prevLogTerm);
+        params.put("newEntry", JSONObject.toJSONString(entry));
+        params.put("leaderCommit",commitID);
+        String res = sendPost(ip,params);
+        return JSONObject.parseObject(res, Result.class);
+    }
 
 
     public static void main(String[] args) {
